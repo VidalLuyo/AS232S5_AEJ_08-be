@@ -15,7 +15,7 @@ kubectl get namespace
 kubectl get ns
 
 # Solo crea
-kubectl create
+kubectl create namespace [nombre]
 kubectl apply (crea y/o actualiza)
 
 # crear un namespace "vidal" por comando mediante un archivo: "1-namespace.yml"
@@ -41,7 +41,7 @@ kubectl config view --minify | findstr namespace
 
 
 # cambiar un namespace en uso por "default" a "vidal"
-kubectl config set-context --current --namespace=juan
+kubectl config set-context --current --namespace=vidal
 
 
 
@@ -52,15 +52,15 @@ kubectl get all -n vidal
 kubectl get all,secrets -n vidal
 
 # listar services del namespace "vidal"
-minikube service age-detector-be -n vidal
+minikube service age-detector -n vidal
 minikube service list
 
 # probar el microservicio dentro del clúster con curl
-curl http://192.168.49.2:30001/v1/api/age-detector
+curl http://192.168.49.2:30001/v1/api/instagram/profile/instagram
 curl http://192.168.49.2:30001/v1/api/age-detector/1
 
 # crear un túnel de puerto la máquina local (host) y el clúster de Kubernetes
-kubectl port-forward service/age-detector-be 8085:30001
+kubectl port-forward service/age-detector 8085:30001
 
 # ver los logs del pod (logs del proyecto)
 kubectl logs nombre-pod
