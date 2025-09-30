@@ -26,32 +26,45 @@ public class YoutubeMP3Rest {
         this.youtubeMP3Service = youtubeMP3Service;
     }
 
-    @GetMapping("/{videoId}")
-    @Operation(
-        summary = "Convertir video de YouTube a MP3",
-        description = "Obtiene el enlace de descarga MP3 de un video de YouTube usando su ID"
-    )
-    @ApiResponses(value = {
-        @ApiResponse(
-            responseCode = "200",
-            description = "Enlace de descarga obtenido exitosamente",
-            content = @Content(
-                mediaType = "application/json",
-                schema = @Schema(implementation = YoutubeMP3.class)
-            )
-        ),
-        @ApiResponse(
-            responseCode = "400",
-            description = "ID de video inválido"
-        ),
-        @ApiResponse(
-            responseCode = "500",
-            description = "Error interno del servidor"
-        )
-    })
-    public Mono<YoutubeMP3> getVideo(
-            @Parameter(description = "ID del video de YouTube", required = true, example = "dQw4w9WgXcQ")
-            @PathVariable String videoId) {
-        return youtubeMP3Service.fetchDownloadUrl(videoId); 
+    // Crear video MP3 a partir de YouTube
+    @PostMapping("/video")
+    @Operation(summary = "Crear video MP3 desde YouTube", description = "Crea un video MP3 a partir de un video de YouTube")
+    public Mono<YoutubeMP3> createYoutubeVideo(@RequestBody YoutubeMP3 youtubeMP3) {
+        return youtubeMP3Service.createYoutubeMP3(youtubeMP3);
+    }
+
+    // Obtener todos los videos MP3
+    @GetMapping("/videos")
+    @Operation(summary = "Obtener todos los videos MP3", description = "Obtiene todos los videos MP3 disponibles")
+    public Mono<Iterable<YoutubeMP3>> getAllVideos() {
+        return youtubeMP3Service.getAllVideos();
+    }
+
+    // Obtener un video MP3 por ID
+    @GetMapping("/video/{id}")
+    @Operation(summary = "Obtener video MP3", description = "Obtiene un video MP3 por su ID")
+    public Mono<YoutubeMP3> getVideoById(@PathVariable Long id) {
+        return youtubeMP3Service.getVideoById(id);
+    }
+
+    // Editar un video MP3
+    @PutMapping("/video/{id}")
+    @Operation(summary = "Editar video MP3", description = "Edita los detalles de un video MP3")
+    public Mono<YoutubeMP3> updateVideo(@PathVariable Long id, @RequestBody YoutubeMP3 youtubeMP3) {
+        return youtubeMP3Service.updateVideo(id, youtubeMP3);
+    }
+
+    // Eliminar un video MP3 lógicamente
+    @PutMapping("/video/{id}/delete")
+    @Operation(summary = "Eliminar video MP3 lógicamente", description = "Elimina lógicamente un video MP3 cambiando su estado a 'I'")
+    public Mono<YoutubeMP3> deleteVideo(@PathVariable Long id) {
+        return youtubeMP3Service.deleteVideo(id);
+    }
+
+    // Reactivar un video MP3
+    @PutMapping("/video/{id}/reactivate")
+    @Operation(summary = "Reactivar video MP3", description = "Reactiva un video MP3 cambiando su estado a 'A'")
+    public Mono<YoutubeMP3> reactivateVideo(@PathVariable Long id) {
+        return youtubeMP3Service.reactivateVideo(id);
     }
 }
