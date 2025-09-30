@@ -1,21 +1,13 @@
 package pe.edu.vallegrande.ApiAI.rest;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pe.edu.vallegrande.ApiAI.model.Instagram;
 import pe.edu.vallegrande.ApiAI.service.InstagramService;
 import reactor.core.publisher.Mono;
-
-import java.util.Map;
 
 @RestController
 @RequestMapping("/v1/api/instagram")
@@ -30,77 +22,56 @@ public class InstagramRest {
         this.instagramService = instagramService;
     }
 
+    // Crear perfil
     @PostMapping("/profile")
-    @Operation(
-        summary = "Obtener perfil de Instagram",
-        description = "Obtiene la información completa de un perfil de Instagram por username"
-    )
-    @ApiResponses(value = {
-        @ApiResponse(
-            responseCode = "200",
-            description = "Perfil obtenido exitosamente",
-            content = @Content(
-                mediaType = "application/json",
-                schema = @Schema(implementation = Instagram.class)
-            )
-        ),
-        @ApiResponse(
-            responseCode = "400",
-            description = "Username inválido o vacío"
-        ),
-        @ApiResponse(
-            responseCode = "500",
-            description = "Error interno del servidor"
-        )
-    })
-    public Mono<ResponseEntity<Instagram>> getInstagramProfile(
-            @Parameter(description = "Objeto JSON con el username", required = true)
-            @RequestBody Map<String, String> request) {
-        
-        String username = request.get("username");
-        
-        if (username == null || username.trim().isEmpty()) {
-            return Mono.just(ResponseEntity.badRequest().build());
-        }
-
-        return instagramService.getInstagramProfile(username.trim())
-                .map(ResponseEntity::ok)
-                .onErrorReturn(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
+    @Operation(summary = "Crear perfil de Instagram", description = "Crea un perfil de Instagram")
+    public Mono<ResponseEntity<Instagram>> createInstagramProfile(@RequestBody Instagram instagram) {
+        return instagramService.createInstagramProfile(instagram)
+            .map(createdProfile -> ResponseEntity.ok(createdProfile));
     }
 
-    @GetMapping("/profile/{username}")
-    @Operation(
-        summary = "Obtener perfil de Instagram por URL",
-        description = "Obtiene la información completa de un perfil de Instagram usando el username en la URL"
-    )
-    @ApiResponses(value = {
-        @ApiResponse(
-            responseCode = "200",
-            description = "Perfil obtenido exitosamente",
-            content = @Content(
-                mediaType = "application/json",
-                schema = @Schema(implementation = Instagram.class)
-            )
-        ),
-        @ApiResponse(
-            responseCode = "400",
-            description = "Username inválido"
-        ),
-        @ApiResponse(
-            responseCode = "500",
-            description = "Error interno del servidor"
-        )
-    })
-    public Mono<ResponseEntity<Instagram>> getInstagramProfileByPath(
-            @Parameter(description = "Username de Instagram", required = true, example = "instagram")
-            @PathVariable String username) {
-        
-        if (username.trim().isEmpty()) {
-            return Mono.just(ResponseEntity.badRequest().build());
-        }
+    // Listar todos los perfiles
+    @GetMapping("/profiles")
+    @Operation(summary = "Listar perfiles de Instagram", description = "Obtiene una lista de todos los perfiles de Instagram")
+    public Mono<ResponseEntity<Iterable<Instagram>>> getAllInstagramProfiles() {
+        return instagramService.getAllInstagramProfiles()
+            .map(ResponseEntity::ok);
+    }
 
-        return instagramService.getInstagramProfile(username.trim())
-                .map(ResponseEntity::ok)
-                .onErrorReturn(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
+    // Obtener perfil por ID
+    @GetMapping("/profile/{id}")
+    @Operation(summary = "Obtener perfil por ID", description = "Obtiene un perfil de Instagram por su ID")
+    public Mono<ResponseEntity<Instagram>> getInstagramProfileById(@PathVariable Long id) {
+        return instagramService.getInstagramProfileById(id)
+            .map(ResponseEntity::ok)
+            .defaultIfEmpty(ResponseEntity.notFound().build());
+    }
+
+    // Editar perfil
+    @PutMapping("/profile/{id}")
+    @Operation(summary = "Editar perfil de Instagram", description = "Edita un perfil de Instagram existente")
+    public Mono<ResponseEntity<Instagram>> updateInstagramProfile(
+            @PathVariable Long id, @RequestBody Instagram instagram) {
+        return instagramService.updateInstagramProfile(id, instagram)
+            .map(ResponseEntity::ok)
+            .defaultIfEmpty(ResponseEntity.notFound().build());
+    }
+
+    // Eliminar perfil lógicamente
+    @PutMapping("/profile/delete/{id}")
+    @Operation(summary = "Eliminar perfil de Instagram lógicamente", description = "Elimina lógicamente un perfil de Instagram (cambia estado a 'I')")
+    public Mono<ResponseEntity<Instagram>> deleteInstagramProfile(@PathVariable Long id) {
+        return instagramService.deleteInstagramProfile(id)
+            .map(ResponseEntity::ok)
+            .defaultIfEmpty(ResponseEntity.notFound().build());
+    }
+
+    // Reactivar perfil
+    @PutMapping("/profile/reactivate/{id}")
+    @Operation(summary = "Reactivar perfil de Instagram", description = "Reactiva un perfil de Instagram (cambia estado a 'A')")
+    public Mono<ResponseEntity<Instagram>> reactivateInstagramProfile(@PathVariable Long id) {
+        return instagramService.reactivateInstagramProfile(id)
+            .map(ResponseEntity::ok)
+            .defaultIfEmpty(ResponseEntity.notFound().build());
     }
 }

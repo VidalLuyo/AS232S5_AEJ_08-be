@@ -1,101 +1,84 @@
 package pe.edu.vallegrande.ApiAI.service.impl;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
 import pe.edu.vallegrande.ApiAI.model.Instagram;
 import pe.edu.vallegrande.ApiAI.repository.InstagramRepository;
 import pe.edu.vallegrande.ApiAI.service.InstagramService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
-
 import java.time.LocalDateTime;
-import java.util.Map;
 
 @Service
 public class InstagramServiceImpl implements InstagramService {
 
     private final InstagramRepository instagramRepository;
-    private final WebClient instagramWebClient;
 
     @Autowired
-    public InstagramServiceImpl(InstagramRepository instagramRepository,
-                               @Qualifier("instagramWebClient") WebClient instagramWebClient) {
+    public InstagramServiceImpl(InstagramRepository instagramRepository) {
         this.instagramRepository = instagramRepository;
-        this.instagramWebClient = instagramWebClient;
+    }
+
+    @Override
+    public Mono<Instagram> createInstagramProfile(Instagram instagram) {
+        instagram.setCreationDate(LocalDateTime.now());  // Fecha de creación
+        instagram.setUpdateDate(LocalDateTime.now());  // Fecha de actualización
+        return instagramRepository.save(instagram);
+    }
+
+    @Override
+    public Mono<Iterable<Instagram>> getAllInstagramProfiles() {
+        return instagramRepository.findAll() // Devuelve Flux<Instagram>
+                .collectList() // Convierte el Flux a una lista, y luego envuelve eso en un Mono
+                .map(list -> (Iterable<Instagram>) list);
+    }
+
+    @Override
+    public Mono<Instagram> getInstagramProfileById(Long id) {
+        return instagramRepository.findById(id);
     }
 
     @Override
     public Mono<Instagram> getInstagramProfile(String username) {
-        return fetchFromApi(username)
-                .map(jsonNode -> mapToInstagram(jsonNode, username))
-                .flatMap(this::saveOrUpdateProfile)
-                .doOnError(error -> System.err.println("Error fetching Instagram profile: " + error.getMessage()));
+        return instagramRepository.findByUsername(username);
     }
 
-    private Mono<JsonNode> fetchFromApi(String username) {
-        return instagramWebClient.post()
-                .uri("/api/instagram/profile")
-                .bodyValue(Map.of("username", username))
-                .retrieve()
-                .bodyToMono(JsonNode.class);
+    @Override
+public Mono<Instagram> updateInstagramProfile(Long id, Instagram instagram) {
+    return instagramRepository.findById(id)
+            .flatMap(existingProfile -> {
+                // Mantener la fecha de creación intacta
+                existingProfile.setFullName(instagram.getFullName());  // Actualiza el nombre
+                existingProfile.setProfilePicture(instagram.getProfilePicture());  // Actualiza la foto de perfil
+                existingProfile.setBio(instagram.getBio());  // Actualiza la biografía
+                existingProfile.setFollowers(instagram.getFollowers());  // Actualiza los seguidores
+                existingProfile.setFollowing(instagram.getFollowing());  // Actualiza los seguidos
+                existingProfile.setPosts(instagram.getPosts());  // Actualiza los posts
+                
+                // Actualizar solo la fecha de modificación
+                existingProfile.setUpdateDate(LocalDateTime.now());  // Fecha de modificación (no la de creación)
+                
+                // Guardar el perfil actualizado
+                return instagramRepository.save(existingProfile);
+            })
+            .switchIfEmpty(Mono.empty());  // Si no se encuentra el perfil, no hace nada
+}
+
+
+    @Override
+    public Mono<Instagram> deleteInstagramProfile(Long id) {
+        return instagramRepository.findById(id)
+                .flatMap(existingProfile -> {
+                    existingProfile.setStatus("I"); // Cambiar el estado a inactivo
+                    return instagramRepository.save(existingProfile);
+                });
     }
 
-    private Instagram mapToInstagram(JsonNode jsonNode, String username) {
-        Instagram instagram = new Instagram();
-        JsonNode result = jsonNode.get("result");
-        
-        if (result == null || result.isNull()) {
-            instagram.setUsername(username);
-            setTimestamps(instagram);
-            return instagram;
-        }
-
-        // Mapeo básico
-        instagram.setUsername(getTextValue(result, "username", username));
-        instagram.setFullName(getTextValue(result, "full_name", null));
-        instagram.setProfilePicture(getTextValue(result, "profile_pic_url", null));
-        instagram.setBio(getTextValue(result, "biography", null));
-        
-        // Mapeo de contadores
-        instagram.setFollowers(getCountValue(result, "edge_followed_by"));
-        instagram.setFollowing(getCountValue(result, "edge_follow"));
-        instagram.setPosts(getCountValue(result, "edge_owner_to_timeline_media"));
-        
-        setTimestamps(instagram);
-        return instagram;
-    }
-
-    private String getTextValue(JsonNode node, String fieldName, String defaultValue) {
-        return node.has(fieldName) ? node.get(fieldName).asText() : defaultValue;
-    }
-
-    private Integer getCountValue(JsonNode result, String edgeName) {
-        if (result.has(edgeName)) {
-            JsonNode edge = result.get(edgeName);
-            if (edge.has("count")) {
-                return edge.get("count").asInt();
-            }
-        }
-        return null;
-    }
-
-    private void setTimestamps(Instagram instagram) {
-        LocalDateTime now = LocalDateTime.now();
-        instagram.setCreationDate(now);
-        instagram.setUpdateDate(now);
-    }
-
-    private Mono<Instagram> saveOrUpdateProfile(Instagram instagram) {
-        return instagramRepository.findByUsername(instagram.getUsername())
-                .flatMap(existing -> updateExisting(instagram, existing))
-                .switchIfEmpty(instagramRepository.save(instagram));
-    }
-
-    private Mono<Instagram> updateExisting(Instagram newData, Instagram existing) {
-        newData.setId(existing.getId());
-        newData.setCreationDate(existing.getCreationDate());
-        return instagramRepository.save(newData);
+    @Override
+    public Mono<Instagram> reactivateInstagramProfile(Long id) {
+        return instagramRepository.findById(id)
+                .flatMap(existingProfile -> {
+                    existingProfile.setStatus("A"); // Cambiar el estado a activo
+                    return instagramRepository.save(existingProfile);
+                });
     }
 }

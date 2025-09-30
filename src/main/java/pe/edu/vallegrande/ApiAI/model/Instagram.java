@@ -38,4 +38,8 @@ public class Instagram {
 
     @Column(value = "update_date")
     private LocalDateTime updateDate;
+
+    // Nueva columna 'status' con valor por defecto 'A'
+    @Column(value = "status")
+    private String status = "A"; // Establece el valor predeterminado
 }

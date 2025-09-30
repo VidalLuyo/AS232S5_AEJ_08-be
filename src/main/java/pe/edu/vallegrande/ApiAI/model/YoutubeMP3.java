@@ -26,4 +26,7 @@ public class YoutubeMP3 {
 
     @Column(value = "update_date")
     private LocalDateTime updateDate;
+
+    @Column(value = "status")
+    private String status = "A"; 
 }
