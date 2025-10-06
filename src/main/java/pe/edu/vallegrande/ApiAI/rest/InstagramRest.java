@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pe.edu.vallegrande.ApiAI.model.Instagram;
 import pe.edu.vallegrande.ApiAI.service.InstagramService;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Map;
@@ -102,5 +103,80 @@ public class InstagramRest {
         return instagramService.getInstagramProfile(username.trim())
                 .map(ResponseEntity::ok)
                 .onErrorReturn(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
+    }
+
+    @GetMapping("/history")
+    @Operation(
+        summary = "Obtener historial de búsquedas",
+        description = "Obtiene todas las búsquedas de perfiles de Instagram ordenadas por fecha de actualización"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Historial obtenido exitosamente",
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = Instagram.class)
+            )
+        )
+    })
+    public Flux<Instagram> getHistory() {
+        return instagramService.getAllProfiles();
+    }
+
+    @GetMapping("/history/recent")
+    @Operation(
+        summary = "Obtener búsquedas recientes",
+        description = "Obtiene las últimas N búsquedas de perfiles de Instagram"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Búsquedas recientes obtenidas exitosamente"
+        )
+    })
+    public Flux<Instagram> getRecentHistory(
+            @Parameter(description = "Número de registros a obtener", example = "50")
+            @RequestParam(defaultValue = "50") int limit) {
+        return instagramService.getRecentProfiles(limit);
+    }
+
+    @DeleteMapping("/history")
+    @Operation(
+        summary = "Limpiar historial completo",
+        description = "Elimina todos los registros del historial de búsquedas"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Historial eliminado exitosamente"
+        )
+    })
+    public Mono<ResponseEntity<Void>> clearHistory() {
+        return instagramService.clearAllHistory()
+                .then(Mono.just(ResponseEntity.ok().<Void>build()));
+    }
+
+    @DeleteMapping("/history/{id}")
+    @Operation(
+        summary = "Eliminar un registro del historial",
+        description = "Elimina un registro específico del historial por ID"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Registro eliminado exitosamente"
+        ),
+        @ApiResponse(
+            responseCode = "404",
+            description = "Registro no encontrado"
+        )
+    })
+    public Mono<ResponseEntity<Void>> deleteHistoryItem(
+            @Parameter(description = "ID del registro a eliminar")
+            @PathVariable Long id) {
+        return instagramService.deleteProfile(id)
+                .then(Mono.just(ResponseEntity.ok().<Void>build()))
+                .onErrorReturn(ResponseEntity.notFound().build());
     }
 }

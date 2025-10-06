@@ -8,6 +8,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import pe.edu.vallegrande.ApiAI.model.Instagram;
 import pe.edu.vallegrande.ApiAI.repository.InstagramRepository;
 import pe.edu.vallegrande.ApiAI.service.InstagramService;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
@@ -32,6 +33,29 @@ public class InstagramServiceImpl implements InstagramService {
                 .map(jsonNode -> mapToInstagram(jsonNode, username))
                 .flatMap(this::saveOrUpdateProfile)
                 .doOnError(error -> System.err.println("Error fetching Instagram profile: " + error.getMessage()));
+    }
+
+    @Override
+    public Flux<Instagram> getAllProfiles() {
+        return instagramRepository.findAll()
+                .sort((a, b) -> b.getUpdateDate().compareTo(a.getUpdateDate()));
+    }
+
+    @Override
+    public Flux<Instagram> getRecentProfiles(int limit) {
+        return instagramRepository.findAll()
+                .sort((a, b) -> b.getUpdateDate().compareTo(a.getUpdateDate()))
+                .take(limit);
+    }
+
+    @Override
+    public Mono<Void> clearAllHistory() {
+        return instagramRepository.deleteAll();
+    }
+
+    @Override
+    public Mono<Void> deleteProfile(Long id) {
+        return instagramRepository.deleteById(id);
     }
 
     private Mono<JsonNode> fetchFromApi(String username) {
@@ -83,7 +107,9 @@ public class InstagramServiceImpl implements InstagramService {
 
     private void setTimestamps(Instagram instagram) {
         LocalDateTime now = LocalDateTime.now();
-        instagram.setCreationDate(now);
+        if (instagram.getId() == null) {
+            instagram.setCreationDate(now);
+        }
         instagram.setUpdateDate(now);
     }
 
