@@ -1,6 +1,6 @@
 server:
   port: ${PORT:8085}  # Valor por defecto si PORT no está configurado
-  url: ${SERVER_URL:https://sturdy-succotash-9rx956xjprpfp9v6-8085.app.github.dev}  # Valor por defecto si SERVER_URL no está configurado
+  url: ${SERVER_URL:https://api-be-1-0.onrender.com}  # Valor por defecto si SERVER_URL no está configurado
 
 spring:
   application:
