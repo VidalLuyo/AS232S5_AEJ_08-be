@@ -25,4 +25,16 @@ public interface InstagramService {
 
     // Reactivar un perfil (cambiar estado de 'I' a 'A')
     Mono<Instagram> reactivateInstagramProfile(Long id);
+
+    // Historial de consultas
+    Mono<Iterable<Instagram>> getInstagramHistory();
+
+    // Cambiar username
+    Mono<Instagram> changeUsername(Long id, String newUsername);
+
+    // Buscar perfil usando API externa
+    Mono<Instagram> fetchInstagramProfile(String username);
+
+    // Eliminar físicamente por ID
+    Mono<Void> deleteInstagramPhysically(Long id);
 }

@@ -103,4 +103,16 @@ public class YoutubeMP3ServiceImpl implements YoutubeMP3Service {
                     return youtubeMP3Repository.save(existingVideo);
                 });
     }
+
+    // Eliminar físicamente un video de la base de datos
+    @Override
+    public Mono<Void> deleteVideoPhysically(Long id) {
+        log.info("Eliminando físicamente el video con ID: " + id);
+        return youtubeMP3Repository.deleteById(id);
+    }
+
+    @Override
+    public Mono<Iterable<YoutubeMP3>> getYoutubeHistory() {
+        return youtubeMP3Repository.findAllByOrderByCreationDateDesc();
+    }
 }

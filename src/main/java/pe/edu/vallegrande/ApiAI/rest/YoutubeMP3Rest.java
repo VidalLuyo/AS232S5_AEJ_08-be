@@ -1,11 +1,6 @@
 package pe.edu.vallegrande.ApiAI.rest;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import pe.edu.vallegrande.ApiAI.model.YoutubeMP3;
 import pe.edu.vallegrande.ApiAI.service.YoutubeMP3Service;
@@ -26,45 +21,43 @@ public class YoutubeMP3Rest {
         this.youtubeMP3Service = youtubeMP3Service;
     }
 
-    // Crear video MP3 a partir de YouTube
-    @PostMapping("/video")
-    @Operation(summary = "Crear video MP3 desde YouTube", description = "Crea un video MP3 a partir de un video de YouTube")
-    public Mono<YoutubeMP3> createYoutubeVideo(@RequestBody YoutubeMP3 youtubeMP3) {
-        return youtubeMP3Service.createYoutubeMP3(youtubeMP3);
+    // Convertir video de YouTube a MP3 usando API externa
+    @GetMapping("/convertir/{videoId}")
+    @Operation(summary = "Convertir video de YouTube a MP3", description = "Convierte un video de YouTube a MP3 usando el videoId y lo guarda en la BD")
+    public Mono<YoutubeMP3> convertYoutubeToMP3(@PathVariable String videoId) {
+        return youtubeMP3Service.fetchDownloadUrl(videoId);
     }
 
-    // Obtener todos los videos MP3
-    @GetMapping("/videos")
-    @Operation(summary = "Obtener todos los videos MP3", description = "Obtiene todos los videos MP3 disponibles")
-    public Mono<Iterable<YoutubeMP3>> getAllVideos() {
-        return youtubeMP3Service.getAllVideos();
+    // Convertir video de YouTube a MP3 usando URL completa
+    @PostMapping("/convertir-url")
+    @Operation(summary = "Convertir video usando URL completa", description = "Convierte un video de YouTube a MP3 usando la URL completa")
+    public Mono<YoutubeMP3> convertYoutubeByUrl(@RequestParam String url) {
+        // Extraer videoId de la URL
+        String videoId = extractVideoIdFromUrl(url);
+        return youtubeMP3Service.fetchDownloadUrl(videoId);
     }
 
-    // Obtener un video MP3 por ID
-    @GetMapping("/video/{id}")
-    @Operation(summary = "Obtener video MP3", description = "Obtiene un video MP3 por su ID")
-    public Mono<YoutubeMP3> getVideoById(@PathVariable Long id) {
-        return youtubeMP3Service.getVideoById(id);
+    // Método auxiliar para extraer videoId de URL
+    private String extractVideoIdFromUrl(String url) {
+        if (url.contains("watch?v=")) {
+            return url.split("watch\\?v=")[1].split("&")[0];
+        } else if (url.contains("youtu.be/")) {
+            return url.split("youtu.be/")[1].split("\\?")[0];
+        }
+        return url; // Si ya es solo el ID
     }
 
-    // Editar un video MP3
-    @PutMapping("/video/{id}")
-    @Operation(summary = "Editar video MP3", description = "Edita los detalles de un video MP3")
-    public Mono<YoutubeMP3> updateVideo(@PathVariable Long id, @RequestBody YoutubeMP3 youtubeMP3) {
-        return youtubeMP3Service.updateVideo(id, youtubeMP3);
+    // Historial de conversiones
+    @GetMapping("/historial")
+    @Operation(summary = "Historial de conversiones MP3", description = "Obtiene todas las canciones convertidas de YouTube")
+    public Mono<Iterable<YoutubeMP3>> getYoutubeHistory() {
+        return youtubeMP3Service.getYoutubeHistory();
     }
 
-    // Eliminar un video MP3 lógicamente
-    @PutMapping("/video/{id}/delete")
-    @Operation(summary = "Eliminar video MP3 lógicamente", description = "Elimina lógicamente un video MP3 cambiando su estado a 'I'")
-    public Mono<YoutubeMP3> deleteVideo(@PathVariable Long id) {
-        return youtubeMP3Service.deleteVideo(id);
-    }
-
-    // Reactivar un video MP3
-    @PutMapping("/video/{id}/reactivate")
-    @Operation(summary = "Reactivar video MP3", description = "Reactiva un video MP3 cambiando su estado a 'A'")
-    public Mono<YoutubeMP3> reactivateVideo(@PathVariable Long id) {
-        return youtubeMP3Service.reactivateVideo(id);
+    // Eliminar físicamente un video MP3
+    @DeleteMapping("/video/{id}/eliminar-fisico")
+    @Operation(summary = "Eliminar físicamente video MP3", description = "Elimina físicamente un video MP3 de la base de datos")
+    public Mono<Void> deleteVideoPhysically(@PathVariable Long id) {
+        return youtubeMP3Service.deleteVideoPhysically(id);
     }
 }

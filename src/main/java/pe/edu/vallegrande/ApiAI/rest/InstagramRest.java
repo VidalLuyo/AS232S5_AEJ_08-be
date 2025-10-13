@@ -22,56 +22,38 @@ public class InstagramRest {
         this.instagramService = instagramService;
     }
 
-    // Crear perfil
-    @PostMapping("/profile")
-    @Operation(summary = "Crear perfil de Instagram", description = "Crea un perfil de Instagram")
-    public Mono<ResponseEntity<Instagram>> createInstagramProfile(@RequestBody Instagram instagram) {
-        return instagramService.createInstagramProfile(instagram)
-            .map(createdProfile -> ResponseEntity.ok(createdProfile));
+    // Buscar perfil usando API externa
+    @GetMapping("/buscar/{username}")
+    @Operation(summary = "Buscar perfil de Instagram", description = "Busca un perfil de Instagram usando la API externa y lo guarda en la BD")
+    public Mono<ResponseEntity<Instagram>> fetchInstagramProfile(@PathVariable String username) {
+        return instagramService.fetchInstagramProfile(username)
+            .map(ResponseEntity::ok)
+            .defaultIfEmpty(ResponseEntity.notFound().build());
     }
 
-    // Listar todos los perfiles
-    @GetMapping("/profiles")
-    @Operation(summary = "Listar perfiles de Instagram", description = "Obtiene una lista de todos los perfiles de Instagram")
-    public Mono<ResponseEntity<Iterable<Instagram>>> getAllInstagramProfiles() {
-        return instagramService.getAllInstagramProfiles()
+    // Historial de consultas
+    @GetMapping("/historial")
+    @Operation(summary = "Historial de consultas de Instagram", description = "Obtiene todas las consultas realizadas de Instagram")
+    public Mono<ResponseEntity<Iterable<Instagram>>> getInstagramHistory() {
+        return instagramService.getInstagramHistory()
             .map(ResponseEntity::ok);
     }
 
-    // Obtener perfil por ID
-    @GetMapping("/profile/{id}")
-    @Operation(summary = "Obtener perfil por ID", description = "Obtiene un perfil de Instagram por su ID")
-    public Mono<ResponseEntity<Instagram>> getInstagramProfileById(@PathVariable Long id) {
-        return instagramService.getInstagramProfileById(id)
+    // Cambiar username en historial
+    @PutMapping("/profile/{id}/cambiar-username")
+    @Operation(summary = "Cambiar username en historial", description = "Cambia el username de una consulta existente para realizar nueva búsqueda")
+    public Mono<ResponseEntity<Instagram>> changeUsername(@PathVariable Long id, @RequestParam String newUsername) {
+        return instagramService.changeUsername(id, newUsername)
             .map(ResponseEntity::ok)
             .defaultIfEmpty(ResponseEntity.notFound().build());
     }
 
-    // Editar perfil
-    @PutMapping("/profile/{id}")
-    @Operation(summary = "Editar perfil de Instagram", description = "Edita un perfil de Instagram existente")
-    public Mono<ResponseEntity<Instagram>> updateInstagramProfile(
-            @PathVariable Long id, @RequestBody Instagram instagram) {
-        return instagramService.updateInstagramProfile(id, instagram)
-            .map(ResponseEntity::ok)
-            .defaultIfEmpty(ResponseEntity.notFound().build());
-    }
-
-    // Eliminar perfil lógicamente
-    @PutMapping("/profile/delete/{id}")
-    @Operation(summary = "Eliminar perfil de Instagram lógicamente", description = "Elimina lógicamente un perfil de Instagram (cambia estado a 'I')")
-    public Mono<ResponseEntity<Instagram>> deleteInstagramProfile(@PathVariable Long id) {
-        return instagramService.deleteInstagramProfile(id)
-            .map(ResponseEntity::ok)
-            .defaultIfEmpty(ResponseEntity.notFound().build());
-    }
-
-    // Reactivar perfil
-    @PutMapping("/profile/reactivate/{id}")
-    @Operation(summary = "Reactivar perfil de Instagram", description = "Reactiva un perfil de Instagram (cambia estado a 'A')")
-    public Mono<ResponseEntity<Instagram>> reactivateInstagramProfile(@PathVariable Long id) {
-        return instagramService.reactivateInstagramProfile(id)
-            .map(ResponseEntity::ok)
+    // Eliminar físicamente perfil de Instagram
+    @DeleteMapping("/profile/{id}/eliminar-fisico")
+    @Operation(summary = "Eliminar físicamente perfil de Instagram", description = "Elimina físicamente un perfil de Instagram de la base de datos")
+    public Mono<ResponseEntity<Void>> deleteInstagramPhysically(@PathVariable Long id) {
+        return instagramService.deleteInstagramPhysically(id)
+            .then(Mono.just(ResponseEntity.ok().<Void>build()))
             .defaultIfEmpty(ResponseEntity.notFound().build());
     }
 }

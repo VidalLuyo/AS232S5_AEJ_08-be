@@ -25,4 +25,10 @@ public interface YoutubeMP3Service {
 
     // Reactivar un video (cambiar el estado a 'A')
     Mono<YoutubeMP3> reactivateVideo(Long id);
+
+    // Eliminar físicamente un video de la base de datos
+    Mono<Void> deleteVideoPhysically(Long id);
+
+    // Historial de conversiones
+    Mono<Iterable<YoutubeMP3>> getYoutubeHistory();
 }
