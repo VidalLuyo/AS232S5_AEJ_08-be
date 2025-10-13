@@ -1,6 +1,6 @@
 server:
   port: ${PORT:8085} # Valor por defecto si PORT no está configurado
-  url: ${SERVER_URL:http://localhost:8085} # Valor por defecto si SERVER_URL no está configurado http://localhost:8085
+  url: ${SERVER_URL:https://api-be-1-0.onrender.com} # Valor por defecto si SERVER_URL no está configurado http://localhost:8085
 
 spring:
   application:
