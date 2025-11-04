@@ -15,6 +15,3 @@ mvn spring-boot:run
 docker build -t api-ai .
 docker run -p 8080:8080 api-ai
 ```
-
-## Pipeline Status
-Pipeline configurado con GitHub Actions
