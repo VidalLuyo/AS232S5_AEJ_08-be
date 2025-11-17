@@ -1,25 +1,38 @@
 server:
   port: ${PORT:8085} # Valor por defecto si PORT no está configurado
-  url: ${SERVER_URL:https://api-be-1-0.onrender.com} # Valor por defecto si SERVER_URL no está configurado http://localhost:8085
+  url: ${SERVER_URL:http://localhost:8085} # Valor por defecto si SERVER_URL no está configurado http://localhost:8085
 
 spring:
   application:
     name: API-AI
   r2dbc:
-    url: r2dbc:postgresql://neondb_owner:npg_VLw14dKbnlIx@ep-withered-bird-aca8elbd-pooler.sa-east-1.aws.neon.tech/apiai?sslmode=require&channel_binding=require
-    username: neondb_owner
-    password: npg_VLw14dKbnlIx
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
+#  r2dbc:
+#    url: ${DATABASE_URL:r2dbc:postgresql://neondb_owner:npg_VLw14dKbnlIx@ep-withered-bird-aca8elbd-pooler.sa-east-1.aws.neon.tech/apiai?sslmode=require&channel_binding=require}
+#    username: ${DATABASE_USERNAME:neondb_owner}
+#    password: ${DATABASE_PASSWORD:npg_VLw14dKbnlIx}
 
 rapidapi:
   youtube-mp36:
-    url: https://youtube-mp36.p.rapidapi.com
-    host: youtube-mp36.p.rapidapi.com
-    apikey: 11d5a59a70msh928a6b51895e702p12ab87jsn7b4f24c628ba
+    url: ${YOUTUBE_API_URL}
+    host: ${YOUTUBE_API_HOST}
+    apikey: ${YOUTUBE_API_KEY}
 
   instagram120:
-    url: https://instagram120.p.rapidapi.com
-    host: instagram120.p.rapidapi.com
-    apikey: 11d5a59a70msh928a6b51895e702p12ab87jsn7b4f24c628ba
+    url: ${INSTAGRAM_API_URL}
+    host: ${INSTAGRAM_API_HOST}
+    apikey: ${INSTAGRAM_API_KEY}
+#  youtube-mp36:
+#    url: ${YOUTUBE_API_URL:https://youtube-mp36.p.rapidapi.com}
+#    host: ${YOUTUBE_API_HOST:youtube-mp36.p.rapidapi.com}
+#    apikey: ${YOUTUBE_API_KEY:11d5a59a70msh928a6b51895e702p12ab87jsn7b4f24c628ba}
+#
+#  instagram120:
+#    url: ${INSTAGRAM_API_URL:https://instagram120.p.rapidapi.com}
+#    host: ${INSTAGRAM_API_HOST:instagram120.p.rapidapi.com}
+#    apikey: ${INSTAGRAM_API_KEY:11d5a59a70msh928a6b51895e702p12ab87jsn7b4f24c628ba}
 
 logging:
   level:

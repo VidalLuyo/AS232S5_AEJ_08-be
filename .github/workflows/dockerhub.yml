@@ -33,4 +33,6 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/api-ai:latest
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/08-jesus-luyo:1.0
+            ${{ secrets.DOCKERHUB_USERNAME }}/08-jesus-luyo:latest
