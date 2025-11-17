@@ -7,9 +7,9 @@ services:
     image: vidalluyo0/08-jesus-luyo:1.0
     container_name: api-ai-be
     ports:
-      - "8085:8085"
+      - "${PORT:-8085}:${PORT:-8085}"
     environment:
-      - PORT=8085
+      - PORT=${PORT:-8085}
       - DATABASE_URL=r2dbc:postgresql://neondb_owner:npg_VLw14dKbnlIx@ep-withered-bird-aca8elbd-pooler.sa-east-1.aws.neon.tech/apiai?sslmode=require&channel_binding=require
       - DATABASE_USERNAME=neondb_owner
       - DATABASE_PASSWORD=npg_VLw14dKbnlIx
@@ -28,7 +28,7 @@ services:
     ports:
       - "4200:4200"
     environment:
-      - BACKEND_URL=http://backend:8085
+      - API_URL=http://localhost:${PORT:-8085}
     networks:
       - my-network
     depends_on:
