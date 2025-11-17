@@ -19,6 +19,20 @@ services:
       - INSTAGRAM_API_URL=https://instagram120.p.rapidapi.com
       - INSTAGRAM_API_HOST=instagram120.p.rapidapi.com
       - INSTAGRAM_API_KEY=11d5a59a70msh928a6b51895e702p12ab87jsn7b4f24c628ba
+    networks:
+      - my-network
+
+  frontend:
+    image: vidalluyo0/08-jesus-luyo-fe:1.0
+    container_name: api-ai-fe
+    ports:
+      - "4200:4200"
+    environment:
+      - BACKEND_URL=http://backend:8085
+    networks:
+      - my-network
+    depends_on:
+      - backend
 
 # CREAR UNA RED EN ESTE COMPOSE PARA QUE SEA COMPARTIDA A FUTURO CON OTRO COMPOSE
 networks:
@@ -28,3 +42,5 @@ networks:
 
 # Endpoint GET público para testear:
 # http://localhost:8085/v1/api/instagram/historial
+# Frontend disponible en:
+# http://localhost:4200
