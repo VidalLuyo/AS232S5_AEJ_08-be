@@ -1,0 +1,6 @@
+# kubectl create namespace jesus-luyo-08 (COMANDO)
+# kubectl apply -f jesus-luyo-08-namespace.yml (yml)
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: jesus-luyo-08

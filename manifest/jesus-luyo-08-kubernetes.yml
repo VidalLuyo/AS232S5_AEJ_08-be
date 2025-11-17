@@ -1,0 +1,94 @@
+# consultar versión de minikube
+minikube version
+
+# consultar si minikube esta en start o stop
+minikube status
+
+# iniciar clúster kubernetes
+minikube start
+
+# ingressar a la carpeta de los manifiestos de kubernetes (manifest)
+cd manifest
+
+# listar namespace
+kubectl get namespace
+kubectl get ns
+
+# Solo crea
+kubectl create namespace [nombre]
+kubectl apply (crea y/o actualiza)
+
+# crear un namespace "jesus-luyo-08" por comando mediante un archivo: "jesus-luyo-08-namespace.yml"
+kubectl apply -f jesus-luyo-08-namespace.yml
+
+# crear un secret "credentials" dentro del namespace "jesus-luyo-08" por comando mediante un archivo: "jesus-luyo-08-secret.yml"
+kubectl apply -f jesus-luyo-08-secret.yml
+
+# crear un service "api-ai-be" dentro del namespace "jesus-luyo-08" por comando mediante un archivo: "jesus-luyo-08-service.yml"
+kubectl apply -f jesus-luyo-08-service.yml
+
+# crear un deployment "api-ai-be" dentro del namespace "jesus-luyo-08" por comando mediante un archivo: "jesus-luyo-08-deployment.yml"
+kubectl apply -f jesus-luyo-08-deployment.yml
+
+
+
+# consultar namespace en uso por "default" | LINUX
+kubectl config view --minify | grep namespace
+
+# consultar namespace en uso por "default" | WINDOWS
+kubectl config view --minify | findstr namespace
+
+
+
+# cambiar un namespace en uso por "default" a "jesus-luyo-08"
+kubectl config set-context --current --namespace=jesus-luyo-08
+
+
+
+# consultar todos los recursos de un namespace "jesus-luyo-08"
+kubectl get all -n jesus-luyo-08
+
+# consultar todos los recursos y secret de un namespace "jesus-luyo-08"
+kubectl get all,secrets -n jesus-luyo-08
+
+# listar services del namespace "jesus-luyo-08"
+minikube service api-ai-be -n jesus-luyo-08
+minikube service list
+
+# probar el microservicio dentro del clúster con curl (MINIKUBE)
+curl http://192.168.49.2:30001/v1/api/instagram/historial
+curl http://192.168.49.2:30001/actuator/health
+
+# crear un túnel de puerto la máquina local (host) y el clúster de Kubernetes
+kubectl port-forward service/api-ai-be 8085:30001 -n jesus-luyo-08
+
+# ver los logs del pod (logs del proyecto)
+kubectl logs nombre-pod -n jesus-luyo-08
+
+# aplicar todos los manifiestos a la vez
+kubectl apply -f jesus-luyo-08-namespace.yml -f jesus-luyo-08-secret.yml -f jesus-luyo-08-service.yml -f jesus-luyo-08-deployment.yml
+
+
+
+# ============================================
+# COMANDOS PARA MODO LOCAL (DOCKER COMPOSE)
+# ============================================
+
+# levantar el contenedor en modo local
+docker-compose -f docker-compose-be.yml up -d
+
+# ver logs del contenedor
+docker-compose -f docker-compose-be.yml logs -f
+
+# detener y eliminar el contenedor
+docker-compose -f docker-compose-be.yml down
+
+# ver estado de los contenedores
+docker-compose -f docker-compose-be.yml ps
+
+# probar el microservicio en modo local
+curl http://localhost:8085/v1/api/instagram/historial
+curl http://localhost:8085/actuator/health
+
+# reiniciar el servicio
+docker-compose -f docker-compose-be.yml restart
