@@ -1,0 +1,30 @@
+# docker-compose -f docker-compose-be.yml up -d
+# docker-compose -f docker-compose-be.yml down
+version: '3'
+
+services:
+  backend:
+    image: vidalluyo0/08-jesus-luyo:1.0
+    container_name: api-ai-be
+    ports:
+      - "8085:8085"
+    environment:
+      - PORT=8085
+      - DATABASE_URL=r2dbc:postgresql://neondb_owner:npg_VLw14dKbnlIx@ep-withered-bird-aca8elbd-pooler.sa-east-1.aws.neon.tech/apiai?sslmode=require&channel_binding=require
+      - DATABASE_USERNAME=neondb_owner
+      - DATABASE_PASSWORD=npg_VLw14dKbnlIx
+      - YOUTUBE_API_URL=https://youtube-mp36.p.rapidapi.com
+      - YOUTUBE_API_HOST=youtube-mp36.p.rapidapi.com
+      - YOUTUBE_API_KEY=11d5a59a70msh928a6b51895e702p12ab87jsn7b4f24c628ba
+      - INSTAGRAM_API_URL=https://instagram120.p.rapidapi.com
+      - INSTAGRAM_API_HOST=instagram120.p.rapidapi.com
+      - INSTAGRAM_API_KEY=11d5a59a70msh928a6b51895e702p12ab87jsn7b4f24c628ba
+
+# CREAR UNA RED EN ESTE COMPOSE PARA QUE SEA COMPARTIDA A FUTURO CON OTRO COMPOSE
+networks:
+  my-network:
+    name: my-network
+    driver: bridge
+
+# Endpoint GET público para testear:
+# http://localhost:8085/v1/api/instagram/historial
