@@ -28,7 +28,10 @@ services:
     ports:
       - "4200:4200"
     environment:
-      - SERVER_URL=${SERVER_URL:-http://localhost:8085}
+      - SERVER_URL=${SERVER_URL}
+      - PORT=${PORT:-8085}
+      - CODESPACE_NAME=${CODESPACE_NAME}
+      - GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN=${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN}
     networks:
       - my-network
     depends_on:
